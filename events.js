@@ -56,7 +56,7 @@ var slack = {
         if(slack.verify(event)){
             response.statusCode = 200;
             try{event.body = JSON.parse(event.body);}catch(error){console.log(error); callback(null, response);}
-            console.log(body);
+            console.log(event.body);
             if(event.body.type === "team_join"){
                 callback(null, response);
                 slack.onTeamJoin(event.body, slack.send);

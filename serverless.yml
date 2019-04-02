@@ -1,0 +1,24 @@
+service: eventHandlerSlack
+
+provider:
+    name: aws
+    stage: prod
+    runtime: nodejs8.10
+    region: us-east-1
+    timeout: 3
+    memorySize: 512
+    enviornment:
+        MONGODB_URI: ${env:MONGODB_URI}
+        DB_NAME: ${env:DB_NAME}
+        SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
+        NEW_MEMBERS_WH: ${env:NEW_MEMBERS_WH}
+        BOT_TOKEN: ${env:BOT_TOKEN}
+        LOG_WH: ${env:LOG_WH}
+
+functions:
+    incoming:
+        handler: events.incoming
+        events:
+            - http:
+                path: incoming
+                method: POST

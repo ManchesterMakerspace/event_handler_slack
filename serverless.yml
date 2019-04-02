@@ -7,7 +7,7 @@ provider:
     region: us-east-1
     timeout: 3
     memorySize: 512
-    enviornment:
+    environment:
         MONGODB_URI: ${env:MONGODB_URI}
         DB_NAME: ${env:DB_NAME}
         SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}

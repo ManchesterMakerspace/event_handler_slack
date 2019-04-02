@@ -62,7 +62,7 @@ var slack = {
             } else if (event.body.type === "url_verification"){
                 response.body = JSON.stringify({challenge: event.body.challenge});
                 callback(null, response);
-            } else {console.log('unhandled event type: ' + event.body); callback(null, response);}
+            } else {console.log('unhandled event type: ' + JSON.stringify(event.body)); callback(null, response);}
         } else {console.log('not slack?'); callback(null, response);}
     },
     getEmail: function(user_id, onFind){

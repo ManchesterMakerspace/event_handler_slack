@@ -53,13 +53,11 @@ var slack = {
     },
     handler: function(event, context, callback){
         if(slack.verify(event)){
-            if(event.type === "team_join"){
-                console.log(event);
-                slack.onTeamJoin(event.event, slack.send);
-            } else if(event.type === "event_callback"){
-                console.log(event);
-            } else if (event.type === "url_verification"){
-                callback(null, event.challenge);
+            console.log(event);
+            if(event.body.type === "team_join"){
+                slack.onTeamJoin(event.body, slack.send);
+            } else if (event.body.type === "url_verification"){
+                callback(null, event.body.challenge);
             } else {console.log('unhandled event type?'); callback(null);}
         } else {console.log('not slack?'); callback(null);}
     },

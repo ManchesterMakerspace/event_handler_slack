@@ -56,14 +56,12 @@ var slack = {
         if(slack.verify(event)){
             response.statusCode = 200;
             try{event.body = JSON.parse(event.body);}catch(error){console.log(error); callback(null, response);}
-            console.log(event.body);
             if(event.body.type === "team_join"){
                 callback(null, response);
                 slack.onTeamJoin(event.body, slack.send);
             } else if (event.body.type === "url_verification"){
                 response.body = JSON.stringify({challenge: event.body.challenge});
                 callback(null, response);
-                console.log('can do things after callback?');
             } else {console.log('unhandled event type?'); callback(null, response);}
         } else {console.log('not slack?'); callback(null, response);}
     },

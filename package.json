@@ -1,6 +1,6 @@
 {
   "name": "eventHandlerSlack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Handles incoming events for our slack workspace",
   "main": "events.js",
   "scripts": {

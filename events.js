@@ -23,9 +23,9 @@ var mongo = {
                             }
                         }, {upsert: true}, function onUpdate(updateError, result){
                             if(updateError){log('update error: ' + updateError);}
-                            client.close();
+                            client.close(); console.log('closed client');
                         });
-                    } else {log('error finding member ' + findError);}
+                    } else {client.close(); log('error finding member ' + findError);}
                 });
             } else {log('error connectining to database to update new member: ' + connectError);}
         });

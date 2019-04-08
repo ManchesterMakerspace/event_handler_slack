@@ -3,9 +3,6 @@
   "version": "1.0.1",
   "description": "Handles incoming events for our slack workspace",
   "main": "events.js",
-  "scripts": {
-    "postversion": "git push"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ManchesterMakerspace/event_handler_slack.git"

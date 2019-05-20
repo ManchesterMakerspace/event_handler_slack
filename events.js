@@ -7,27 +7,32 @@ var https = require('https');
 var request = require('request');
 
 var mongo = {
-    addUser: function(event, email, log){
+    updateUser: function(client, memberDoc, email, event, issue){
+        client.db(process.env.DB_NAME).collection('slack_users').updateOne({member_id: memberDoc._id}, {
+            $set: {
+                _id: new ObjectID(),
+                member_id: memberDoc ? memberDoc._id : 'need member_id',
+                slack_email: email ? email : 'need email',
+                slack_id: event.user.id,
+                name: event.user.profile.display_name,
+                real_name: event.user.real_name
+            }
+        }, {upsert: true}, function onUpdate(error, result){
+            if(updateError){issue(event, error);}
+            client.close();
+        });
+    },
+    addUser: function(event, email, issue){
         MongoClient.connect(process.env.MONGODB_URI, {useNewUrlParser: true}, function onConnect(connectError, client){
             if(client){
-                client.db(process.env.DB_NAME).collection('members').findOne({email: email}, function onFind(findError, memberDoc){
-                    if(memberDoc){ // given we find a member with this email
-                        client.db(process.env.DB_NAME).collection('slack_users').updateOne({member_id: memberDoc._id}, {
-                            $set: {
-                                _id: new ObjectID(),
-                                member_id: memberDoc._id,
-                                slack_email: email,
-                                slack_id: event.user.id,
-                                name: event.user.profile.display_name,
-                                real_name: event.user.real_name
-                            }
-                        }, {upsert: true}, function onUpdate(updateError, result){
-                            if(updateError){log('update error: ' + updateError);}
-                            client.close(); console.log('closed client');
-                        });
-                    } else {client.close(); log('error finding member ' + findError);}
-                });
-            } else {log('error connectining to database to update new member: ' + connectError);}
+                if(email){
+                    client.db(process.env.DB_NAME).collection('members').findOne({email: email}, function onFind(findError, memberDoc){
+                        if(memberDoc){ // given we find a member with this email
+                            mongo.updateUser(client, memberDoc, email, event, issue);
+                        } else {client.close(); issue(event, findError);}
+                    });
+                } else {mongo.updateUser(client, null, null, event, issue);} // guest user case
+            } else {issue(even, connectError);}
         });
     }
 };
@@ -81,12 +86,19 @@ var slack = {
             onFind("lookup issue: " + res.statusCode + error, null);
         });
     },
+    onAddIssue: function(event, error){
+        log('If ' + event.user.real_name +
+         ' is a member they will need to be manually updated in database. Entry in collection slack_users, search {"slack_id": "' +
+          event.user.id + '"} error message was:'  + error);
+    },
     onTeamJoin: function(event, log){ // pass fuction on where to log (slack, cloudwatch, console, ect)
-        slack.send('Welcome to the makerspace '+event.user.real_name+'! @'+ event.user.profile.display_name +
-            '\nThis is a good channel to introduce yourself and ask questions.', process.env.NEW_MEMBERS_WH);
+        slack.send('Welcome to the makerspace '+event.user.real_name+'! (<@'+ event.user.id +
+            '>) \nThis is a good channel to introduce yourself and ask questions.', process.env.NEW_MEMBERS_WH);
+        if(event.user.is_resticted){log(event.user.real_name + ' is restricted (attempting to figure if this attribute indicates guest)');}
+        if(event.user.is_ultra_resticted){log(event.user.real_name + ' is ultra restricted (attempting to figure if this attribute indicates guest)');}
         slack.getEmail(event.user.id, function onEmailFind(error, email){ // this assumes the email that we intivited them to slack with is the one that gets signed in with intially, pretty sure bet
-            if(email){mongo.addUser(event, email, log);}
-            else     {log('no email: ' + error);}
+            if(!email){slack.onAddIssue(event, error);}
+            mongo.addUser(event, email, slack.onAddIssue); // add user to our db regardless of finding a match
         });
     }
 };

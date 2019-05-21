@@ -18,7 +18,7 @@ var mongo = {
                 real_name: event.user.real_name
             }
         }, {upsert: true}, function onUpdate(error, result){
-            if(updateError){issue(event, error);}
+            if(error){issue(event, error);}
             client.close();
         });
     },
@@ -32,7 +32,7 @@ var mongo = {
                         } else {client.close(); issue(event, findError);}
                     });
                 } else {mongo.updateUser(client, null, null, event, issue);} // guest user case
-            } else {issue(even, connectError);}
+            } else {issue(event, connectError);}
         });
     }
 };

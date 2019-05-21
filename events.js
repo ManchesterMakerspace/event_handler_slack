@@ -87,7 +87,7 @@ var slack = {
         });
     },
     onAddIssue: function(event, error){
-        log('If ' + event.user.real_name +
+        slack.send('If ' + event.user.real_name +
          ' is a member they will need to be manually updated in database. Entry in collection slack_users, search {"slack_id": "' +
           event.user.id + '"} error message was:'  + error);
     },

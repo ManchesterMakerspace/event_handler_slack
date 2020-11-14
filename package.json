@@ -15,7 +15,7 @@
   "homepage": "https://github.com/ManchesterMakerspace/event_handler_slack#readme",
   "private": true,
   "dependencies": {
-    "mongodb": "^3.2.2",
+    "mongodb": "^3.5.7",
     "request": "^2.88.0"
   }
 }
